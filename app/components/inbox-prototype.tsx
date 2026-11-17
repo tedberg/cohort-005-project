@@ -557,3 +557,87 @@ export function VariantCPage({ inbox }: { inbox: MockInbox }) {
     </div>
   );
 }
+
+// ─── Variant D: the combination: "Inbox" nav item → A-style popover ─────────
+// Badge counts UNREAD (clears only as each Notification is read), type icons,
+// one-line excerpt under the title.
+
+export function VariantDNavPopover({ inbox }: { inbox: MockInbox }) {
+  const [open, setOpen] = useState(false);
+  const openItem = useOpenNotification(inbox, () => setOpen(false));
+  const items = inbox.items.slice(0, 6);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+          open
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        )}
+      >
+        <InboxIcon className="size-4" />
+        Inbox
+        <CountBadge count={inbox.unread} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-full top-0 z-50 ml-3 w-96 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-xl">
+            <div className="flex items-center justify-between border-b px-4 py-2.5">
+              <span className="text-sm font-semibold">Inbox</span>
+              <button
+                onClick={inbox.markAllRead}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Mark all as read
+              </button>
+            </div>
+            {items.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <ul className="max-h-[28rem] divide-y overflow-y-auto">
+                {items.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => openItem(item)}
+                      className={cn(
+                        "flex w-full gap-3 px-4 py-3 text-left hover:bg-accent",
+                        !item.read && "bg-primary/5"
+                      )}
+                    >
+                      <TypeIcon type={item.type} className="size-7" />
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={cn(
+                            "line-clamp-2 text-sm",
+                            item.read ? "text-muted-foreground" : "font-medium"
+                          )}
+                        >
+                          {item.title}
+                        </div>
+                        {item.excerpt && (
+                          <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                            {item.excerpt}
+                          </div>
+                        )}
+                        <div className="mt-0.5 text-xs text-muted-foreground">
+                          {item.ago}
+                        </div>
+                      </div>
+                      {!item.read && (
+                        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

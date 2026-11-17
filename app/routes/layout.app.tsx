@@ -6,6 +6,7 @@ import {
   VariantBNavSheet,
   VariantCNavLink,
   VariantCPage,
+  VariantDNavPopover,
 } from "~/components/inbox-prototype";
 import { PrototypeSwitcher } from "~/components/prototype-switcher";
 import type { Route } from "./+types/layout.app";
@@ -256,6 +257,8 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
             <VariantBNavSheet inbox={inbox} />
           ) : variant === "C" ? (
             <VariantCNavLink inbox={inbox} />
+          ) : variant === "D" ? (
+            <VariantDNavPopover inbox={inbox} />
           ) : null
         }
       />
@@ -267,6 +270,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
           { key: "A", name: "Bell + popover" },
           { key: "B", name: "Nav item + slide-over" },
           { key: "C", name: "Inbox page" },
+          { key: "D", name: "Nav item + popover (combined)" },
         ]}
         status={`unseen ${inbox.unseen} · unread ${inbox.unread}`}
       />
