@@ -1,4 +1,13 @@
-import { Outlet } from "react-router";
+import { Outlet, useSearchParams } from "react-router";
+// PROTOTYPE (prototype/inbox-ui): Inbox variants
+import {
+  useMockInbox,
+  VariantABell,
+  VariantBNavSheet,
+  VariantCNavLink,
+  VariantCPage,
+} from "~/components/inbox-prototype";
+import { PrototypeSwitcher } from "~/components/prototype-switcher";
 import type { Route } from "./+types/layout.app";
 import { Sidebar } from "~/components/sidebar";
 import { DevUI } from "~/components/dev-ui";
@@ -227,16 +236,40 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
     isTeamAdmin: userIsTeamAdmin,
   } = loaderData;
 
+  // PROTOTYPE: Inbox variant switcher
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get("variant") ?? "A";
+  const inbox = useMockInbox(currentUser?.role ?? null, userIsTeamAdmin);
+  const showInboxPage = variant === "C" && searchParams.get("inbox") === "open";
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         currentUser={currentUser}
         recentCourses={recentCourses}
         isTeamAdmin={userIsTeamAdmin}
+        headerSlot={
+          currentUser && variant === "A" ? <VariantABell inbox={inbox} /> : null
+        }
+        navSlot={
+          !currentUser ? null : variant === "B" ? (
+            <VariantBNavSheet inbox={inbox} />
+          ) : variant === "C" ? (
+            <VariantCNavLink inbox={inbox} />
+          ) : null
+        }
       />
       <main className="flex-1 overflow-y-auto">
-        <Outlet />
+        {showInboxPage ? <VariantCPage inbox={inbox} /> : <Outlet />}
       </main>
+      <PrototypeSwitcher
+        variants={[
+          { key: "A", name: "Bell + popover" },
+          { key: "B", name: "Nav item + slide-over" },
+          { key: "C", name: "Inbox page" },
+        ]}
+        status={`unseen ${inbox.unseen} · unread ${inbox.unread}`}
+      />
       <DevUI
         users={users}
         currentUser={currentUser}
