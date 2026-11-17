@@ -628,7 +628,7 @@ export function VariantDNavPopover({ inbox }: { inbox: MockInbox }) {
                         </div>
                       </div>
                       {!item.read && (
-                        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+                        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-blue-500" />
                       )}
                     </button>
                   </li>
