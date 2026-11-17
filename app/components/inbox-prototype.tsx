@@ -206,10 +206,10 @@ function TypeIcon({ type, className }: { type: NotificationType; className?: str
   );
 }
 
-function CountBadge({ count }: { count: number }) {
+function CountBadge({ count, red }: { count: number; red?: boolean }) {
   if (count === 0) return null;
   return (
-    <span className="ml-auto min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center text-[10px] font-semibold leading-none text-primary-foreground">
+    <span className={cn("ml-auto min-w-5 rounded-full px-1.5 py-0.5 text-center text-[10px] font-semibold leading-none", red ? "bg-rose-500 text-white" : "bg-primary text-primary-foreground")}>
       {count > 9 ? "9+" : count}
     </span>
   );
@@ -580,7 +580,7 @@ export function VariantDNavPopover({ inbox }: { inbox: MockInbox }) {
       >
         <InboxIcon className="size-4" />
         Inbox
-        <CountBadge count={inbox.unread} />
+        <CountBadge count={inbox.unread} red />
       </button>
       {open && (
         <>
