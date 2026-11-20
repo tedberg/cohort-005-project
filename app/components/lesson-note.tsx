@@ -5,7 +5,11 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Textarea } from "~/components/ui/textarea";
 import { cn, formatRelativeTime } from "~/lib/utils";
-import { describeNoteDraft } from "~/modules/lesson-note";
+import {
+  describeNoteDraft,
+  type NoteDraft,
+  type NoteDraftStatus,
+} from "~/modules/lesson-note";
 
 export type SavedNote = { body: string; updatedAt: string } | null;
 
@@ -27,7 +31,11 @@ export function LessonNote({ note }: { note: SavedNote }) {
           <Textarea
             name="body"
             value={body}
-            onChange={(event) => setBody(event.target.value)}
+            onChange={(event) => {
+              setBody(event.target.value);
+              // A failed save's error describes the text that was sent, not this edit.
+              if (fetcher.data) fetcher.reset();
+            }}
             placeholder="Key ideas, questions to come back to, code to try..."
             aria-label="Your notes"
             className="min-h-32 resize-y"
@@ -45,16 +53,7 @@ export function LessonNote({ note }: { note: SavedNote }) {
               status={draft.status}
               updatedAt={note?.updatedAt}
             />
-            <span
-              className={cn(
-                "ml-auto text-xs",
-                draft.status === "too-long"
-                  ? "text-destructive"
-                  : "text-muted-foreground"
-              )}
-            >
-              {draft.length} / {draft.maxLength}
-            </span>
+            <NoteLength draft={draft} />
           </div>
         </fetcher.Form>
       </CardContent>
@@ -87,10 +86,17 @@ function NoteStatus({
   updatedAt,
 }: {
   error: string | undefined;
-  status: ReturnType<typeof describeNoteDraft>["status"];
+  status: NoteDraftStatus;
   updatedAt: string | undefined;
 }) {
   if (error) return <span className="text-sm text-destructive">{error}</span>;
+  if (status === "too-long") {
+    return (
+      <span className="text-xs text-destructive">
+        Too long to save. Shorten your note.
+      </span>
+    );
+  }
   if (status === "unsaved") {
     return (
       <span className="text-xs text-muted-foreground">Unsaved changes</span>
@@ -104,4 +110,19 @@ function NoteStatus({
     );
   }
   return null;
+}
+
+function NoteLength({ draft }: { draft: NoteDraft }) {
+  return (
+    <span
+      className={cn(
+        "ml-auto text-xs",
+        draft.status === "too-long"
+          ? "text-destructive"
+          : "text-muted-foreground"
+      )}
+    >
+      {draft.length} / {draft.maxLength}
+    </span>
+  );
 }
